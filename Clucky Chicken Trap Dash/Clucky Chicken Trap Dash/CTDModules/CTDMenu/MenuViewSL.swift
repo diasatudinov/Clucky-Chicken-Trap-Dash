@@ -3,106 +3,109 @@ import SwiftUI
 struct MenuViewSL: View {
     @State private var showGame = false
     @State private var showShop = false
-    @State private var showAchivement = false
+    @State private var showStatistics = false
     @State private var showSettings = false
     
-    @StateObject var shopVM = ShopViewModelSL()
-    @StateObject var settingsVM = SettingsViewModelSL()
-    @StateObject var achievementVM = AchievementsViewModel()
+//    @StateObject var shopVM = ShopViewModelSL()
+    @StateObject var settingsVM = SettingsViewModelCTD()
+//    @StateObject var achievementVM = AchievementsViewModel()
     var body: some View {
         
         GeometryReader { geometry in
             ZStack {
                 VStack(spacing: 0) {
-                    HStack {
-                        
-                        Image(.experienceBgSL)
+                    
+                    Spacer()
+                    
+                    Button {
+                        showGame = true
+                    } label: {
+                        Image(.playIconCTD)
                             .resizable()
                             .scaledToFit()
-                            .frame(height: SLDeviceInfo.shared.deviceType == .pad ? 180:90)
-                        
+                            .frame(height: CTDDeviceManager.shared.deviceType == .pad ? 380:190)
+                    }
+                    
+                    HStack {
                         Spacer()
-                        
                         Button {
                             showSettings = true
                         } label: {
-                            Image(.settingsIconSL)
+                            Image(.settingsIconCTD)
                                 .resizable()
                                 .scaledToFit()
-                                .frame(height: SLDeviceInfo.shared.deviceType == .pad ? 160:80)
+                                .frame(height: CTDDeviceManager.shared.deviceType == .pad ? 160:80)
                         }
                         
-                    }
-                    Spacer()
-                    
-                    HStack {
                         Button {
-                            showGame = true
+                            showStatistics = true
                         } label: {
-                            Image(.playIconSL)
+                            Image(.statisticsIconCTD)
                                 .resizable()
                                 .scaledToFit()
-                                .frame(height: SLDeviceInfo.shared.deviceType == .pad ? 200:100)
+                                .frame(height: CTDDeviceManager.shared.deviceType == .pad ? 160:80)
                         }
                         
-                    }
-                    
-                    Spacer()
-                    HStack {
-                        Button {
-                            showAchivement = true
-                        } label: {
-                            Image(.achivmentIconSL)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(height: SLDeviceInfo.shared.deviceType == .pad ? 140:70)
-                        }
-                        
-                        Spacer()
                         Button {
                             showShop = true
                         } label: {
-                            Image(.shopIconSL)
+                            Image(.shopIconCTD)
                                 .resizable()
                                 .scaledToFit()
-                                .frame(height: SLDeviceInfo.shared.deviceType == .pad ? 180:90)
+                                .frame(height: CTDDeviceManager.shared.deviceType == .pad ? 160:80)
                         }
-                        
+                        Spacer()
                     }
+                    Spacer()
                 }.padding()
             }
             .background(
                 ZStack {
-                    Image(.menuViewBgSL)
+                    Image(.menuBgCTD)
                         .resizable()
                         .edgesIgnoringSafeArea(.all)
                         .scaledToFill()
+                    VStack {
+                        Spacer()
+                        HStack(alignment: .bottom) {
+                            Image(.chickenMenuCTD)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(height: 250)
+                            Spacer()
+                            Image(.cookerCTD)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(height: 350)
+                                
+                        }
+                    }.edgesIgnoringSafeArea(.bottom)
                 }
                 
             )
-            .onAppear {
-                if settingsVM.musicEnabled {
-                    MusicManagerSL.shared.playBackgroundMusic()
-                }
-            }
-            .onChange(of: settingsVM.musicEnabled) { enabled in
-                if enabled {
-                    MusicManagerSL.shared.playBackgroundMusic()
-                } else {
-                    MusicManagerSL.shared.stopBackgroundMusic()
-                }
-            }
+//            .onAppear {
+//                if settingsVM.musicEnabled {
+//                    MusicManagerSL.shared.playBackgroundMusic()
+//                }
+//            }
+//            .onChange(of: settingsVM.musicEnabled) { enabled in
+//                if enabled {
+//                    MusicManagerSL.shared.playBackgroundMusic()
+//                } else {
+//                    MusicManagerSL.shared.stopBackgroundMusic()
+//                }
+//            }
             .fullScreenCover(isPresented: $showGame) {
-                GameTypeView(shopVM: shopVM)
+                PickChickenViewCTD()
             }
             .fullScreenCover(isPresented: $showShop) {
-                ShopViewSL(viewModel: shopVM)
+                ShopViewCTD()
             }
-            .fullScreenCover(isPresented: $showAchivement) {
-                AchivementsViewSL(viewModel: achievementVM)
+            .fullScreenCover(isPresented: $showStatistics) {
+                StatisticsViewCTD()
             }
             .fullScreenCover(isPresented: $showSettings) {
-                SettingsViewSL(settings: settingsVM)
+                SettingsViewCTD(settings: settingsVM)
             }
             
         }
