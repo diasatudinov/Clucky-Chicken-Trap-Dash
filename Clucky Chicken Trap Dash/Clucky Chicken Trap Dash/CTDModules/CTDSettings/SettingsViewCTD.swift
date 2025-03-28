@@ -1,17 +1,9 @@
-//
-//  SettingsViewSL.swift
-//  Clucky Chicken Trap Dash
-//
-//  Created by Dias Atudinov on 28.03.2025.
-//
-
-
 import SwiftUI
 
 struct SettingsViewCTD: View {
     @Environment(\.presentationMode) var presentationMode
     
-    @ObservedObject var settings: SettingsViewModelSL
+    @ObservedObject var settings: SettingsViewModelCTD
     
     var body: some View {
         ZStack {
@@ -19,126 +11,80 @@ struct SettingsViewCTD: View {
             VStack {
                 ZStack {
                     
-                    Image(.settingsBgSL)
+                    Image(.settingsBgCTD)
                         .resizable()
                         .scaledToFit()
                     
                     
                     VStack {
-                        HStack {
+                        Text("Settings")
+                            .font(.system(size: 42, weight: .black))
+                            .foregroundStyle(.white)
+                        
+                        VStack {
                             
-                            Image(.soundIconSL)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(height: SLDeviceInfo.shared.deviceType == .pad ? 140:70)
-                            VStack {
-                                Image(.sound)
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(height: SLDeviceInfo.shared.deviceType == .pad ? 30:15)
+                            Text("Sounds")
+                                .font(.system(size: 21, weight: .black))
+                                .foregroundStyle(.white)
+                            HStack(spacing: CTDDeviceManager.shared.deviceType == .pad ? 140:70) {
+                                
                                 Button {
-                                    settings.soundEnabled.toggle()
+                                    settings.soundEnabled = false
                                 } label: {
-                                    ZStack {
-                                        Image(.switcherBgSL)
-                                            .resizable()
-                                            .scaledToFit()
-                                        HStack {
-                                            if !settings.soundEnabled {
-                                                Image(.switcherIconSL)
-                                                    .resizable()
-                                                    .scaledToFit()
-                                                    .frame(height: SLDeviceInfo.shared.deviceType == .pad ? 90:45)
-                                                    .padding(.leading, 30)
-                                                Spacer()
-                                            }
-                                            
-                                            if settings.soundEnabled {
-                                                Spacer()
-                                                Image(.switcherIconSL)
-                                                    .resizable()
-                                                    .scaledToFit()
-                                                    .frame(height: SLDeviceInfo.shared.deviceType == .pad ? 90:45)
-                                                    .padding(.trailing, 30)
-                                                
-                                            }
-                                        }
-                                        
-                                    }.frame(width: SLDeviceInfo.shared.deviceType == .pad ? 500: 200)
+                                    Image(.offCTD)
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(height: CTDDeviceManager.shared.deviceType == .pad ? 110:55)
+                                }
+                                Button {
+                                    settings.soundEnabled = true
+                                } label: {
+                                    Image(.onCTD)
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(height: CTDDeviceManager.shared.deviceType == .pad ? 110:55)
                                 }
                             }
                         }
                         
-                        HStack {
+                        VStack {
+                            Text("Language")
+                                .font(.system(size: 21, weight: .black))
+                                .foregroundStyle(.white)
                             
-                            Image(.musicIconSL)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(height: SLDeviceInfo.shared.deviceType == .pad ? 160:80)
-                            VStack {
-                                Image(.music)
+                            HStack(spacing: 30) {
+                                Image(.enCTD)
                                     .resizable()
                                     .scaledToFit()
-                                    .frame(height: SLDeviceInfo.shared.deviceType == .pad ? 30:15)
-                                Button {
-                                    settings.musicEnabled.toggle()
-                                    
-                                } label: {
-                                    ZStack {
-                                        Image(.switcherBgSL)
-                                            .resizable()
-                                            .scaledToFit()
-                                        HStack {
-                                            if !settings.musicEnabled {
-                                                Image(.switcherIconSL)
-                                                    .resizable()
-                                                    .scaledToFit()
-                                                    .frame(height: SLDeviceInfo.shared.deviceType == .pad ? 90:45)
-                                                    .padding(.leading, 30)
-                                                Spacer()
-                                            }
-                                            
-                                            if settings.musicEnabled {
-                                                Spacer()
-                                                Image(.switcherIconSL)
-                                                    .resizable()
-                                                    .scaledToFit()
-                                                    .frame(height: SLDeviceInfo.shared.deviceType == .pad ? 90:45)
-                                                    .padding(.trailing, 30)
-                                                
-                                            }
-                                        }
-                                        
-                                    }.frame(width: SLDeviceInfo.shared.deviceType == .pad ? 500: 200)
-                                }
+                                    .frame(height: CTDDeviceManager.shared.deviceType == .pad ? 110:55)
+                                
+                                Image(.frCTD)
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(height: CTDDeviceManager.shared.deviceType == .pad ? 110:55)
+                                
+                                Image(.grCTD)
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(height: CTDDeviceManager.shared.deviceType == .pad ? 110:55)
+                                
+                                Image(.itCTD)
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(height: CTDDeviceManager.shared.deviceType == .pad ? 110:55)
                             }
                         }
                         
-                        HStack(spacing: SLDeviceInfo.shared.deviceType == .pad ? 40:20) {
-                            Image(.languageIconSL)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(height: SLDeviceInfo.shared.deviceType == .pad ? 140:70)
-                            
-                            Image(.refreshIconSL)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(height: SLDeviceInfo.shared.deviceType == .pad ? 120:60)
-                        }
+                        
+                        
+                        
                         
                     }
-                    VStack {
-                        Spacer()
-                        HStack {
-                            Spacer()
-                            Image(.personIconSL)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(height: SLDeviceInfo.shared.deviceType == .pad ? 400:200)
-                                .offset(x: SLDeviceInfo.shared.deviceType == .pad ? 180:90)
-                        }
-                    }
-                }.frame(width: SLDeviceInfo.shared.deviceType == .pad ? 700:350, height: SLDeviceInfo.shared.deviceType == .pad ? 600:300)
+                    
+                }.frame(width: CTDDeviceManager.shared.deviceType == .pad ? 920:460, height: CTDDeviceManager.shared.deviceType == .pad ? 780:390)
+            
+                
+                
             }
             
             VStack(spacing: 0) {
@@ -146,24 +92,48 @@ struct SettingsViewCTD: View {
                     Button {
                         presentationMode.wrappedValue.dismiss()
                     } label: {
-                        Image(.backIconSL)
+                        Image(.backIconCTD)
                             .resizable()
                             .scaledToFit()
-                            .frame(height: SLDeviceInfo.shared.deviceType == .pad ? 140:70)
+                            .frame(height: CTDDeviceManager.shared.deviceType == .pad ? 100:50)
                     }
                     
                     Spacer()
                 }
                 Spacer()
-            }.padding()
+                Button {
+                    
+                } label: {
+                    Image(.resetIconCTD)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(height: CTDDeviceManager.shared.deviceType == .pad ? 120:61)
+                }
+                
+            }.padding([.leading, .top])
             
         }
         .background(
             ZStack {
-                Image(.settingsViewBgSL)
+                Image(.menuBgCTD)
                     .resizable()
                     .edgesIgnoringSafeArea(.all)
                     .scaledToFill()
+                VStack {
+                    Spacer()
+                    HStack(alignment: .bottom) {
+                        Image(.chickenMenuCTD)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(height: 250)
+                        Spacer()
+                        Image(.cookerCTD)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(height: 350)
+                            
+                    }
+                }.edgesIgnoringSafeArea(.bottom)
             }
             
         )
@@ -173,5 +143,5 @@ struct SettingsViewCTD: View {
 
 
 #Preview {
-    SettingsViewCTD(settings: SettingsViewModelSL())
+    SettingsViewCTD(settings: SettingsViewModelCTD())
 }
