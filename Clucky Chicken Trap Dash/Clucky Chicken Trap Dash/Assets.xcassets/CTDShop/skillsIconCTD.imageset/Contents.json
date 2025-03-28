@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "skillsIconCTD.png",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}
