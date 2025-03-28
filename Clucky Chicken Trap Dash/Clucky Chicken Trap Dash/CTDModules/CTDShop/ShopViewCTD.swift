@@ -8,8 +8,152 @@
 import SwiftUI
 
 struct ShopViewCTD: View {
+    @Environment(\.presentationMode) var presentationMode
+    private enum ShopType {
+        case skills
+        case skins
+    }
+    @State private var shopType: ShopType = .skills
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        ZStack {
+            VStack {
+                ZStack {
+                    Image(.bigBgCTD)
+                        .resizable()
+                        .scaledToFit()
+                    VStack {
+                        Text("Shop")
+                            .font(.system(size: 42, weight: .black))
+                            .foregroundStyle(.white)
+                            .padding(.top, 20)
+                        
+                        HStack(spacing: 8) {
+                            
+                            Image(shopType == .skills ? .skillsIconCTD:.skillsOffIconCTD)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(height: 50)
+                                .onTapGesture {
+                                    shopType = .skills
+                                }
+                            
+                            Image(shopType == .skins ? .skinsIconCTD : .skinsOffIconCTD)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(height: 50)
+                                .onTapGesture {
+                                    shopType = .skins
+                                }
+                        }
+                        HStack(spacing: 40) {
+                            if shopType == .skills {
+                                
+                            } else {
+                                VStack {
+                                    Image(.firstChickenCTD)
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(height: CTDDeviceManager.shared.deviceType == .pad ? 252:126)
+                                    Button {
+                                        
+                                    } label: {
+                                        ZStack {
+                                            Image(.deskBgCTD)
+                                                .resizable()
+                                                .scaledToFit()
+                                                .frame(height: CTDDeviceManager.shared.deviceType == .pad ? 100:50)
+                                            HStack {
+                                                Image(.coinIconCTD)
+                                                    .resizable()
+                                                    .scaledToFit()
+                                                    .frame(height: CTDDeviceManager.shared.deviceType == .pad ? 46:28)
+                                            }
+                                        }
+                                    }
+                                }
+                                
+                                VStack {
+                                    Image(.secondChickenCTD)
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(height: CTDDeviceManager.shared.deviceType == .pad ? 252:126)
+                                    Button {
+                                        
+                                    } label: {
+                                        ZStack {
+                                            Image(.deskBgCTD)
+                                                .resizable()
+                                                .scaledToFit()
+                                                .frame(height: CTDDeviceManager.shared.deviceType == .pad ? 100:50)
+                                            HStack {
+                                                Image(.coinIconCTD)
+                                                    .resizable()
+                                                    .scaledToFit()
+                                                    .frame(height: CTDDeviceManager.shared.deviceType == .pad ? 46:28)
+                                            }
+                                        }
+                                    }
+                                }
+                                
+                                VStack {
+                                    Image(.thirdChickenCTD)
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(height: CTDDeviceManager.shared.deviceType == .pad ? 252:126)
+                                    Button {
+                                        
+                                    } label: {
+                                        ZStack {
+                                            Image(.deskBgCTD)
+                                                .resizable()
+                                                .scaledToFit()
+                                                .frame(height: CTDDeviceManager.shared.deviceType == .pad ? 100:50)
+                                            HStack {
+                                                Image(.coinIconCTD)
+                                                    .resizable()
+                                                    .scaledToFit()
+                                                    .frame(height: CTDDeviceManager.shared.deviceType == .pad ? 46:28)
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            
+                        }
+                        Spacer()
+                    }.padding(.vertical, 20)
+                }.frame(width: UIScreen.main.bounds.width)
+                Spacer()
+            }.ignoresSafeArea()
+            
+            VStack(spacing: 0) {
+                HStack {
+                    Button {
+                        presentationMode.wrappedValue.dismiss()
+                    } label: {
+                        Image(.backIconCTD)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(height: CTDDeviceManager.shared.deviceType == .pad ? 100:50)
+                    }
+                    
+                    Spacer()
+                }
+                Spacer()
+                
+                
+            }.padding([.leading, .top], 30)
+            
+        }.ignoresSafeArea()
+            .background(
+            ZStack {
+                Image(.menuBgCTD)
+                    .resizable()
+                    .edgesIgnoringSafeArea(.all)
+                    .scaledToFill()
+            }
+            
+        )
     }
 }
 
