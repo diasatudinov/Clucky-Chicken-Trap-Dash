@@ -1,5 +1,5 @@
 //
-//  DeviceInfo.swift
+//  CTDDeviceManager.swift
 //  Clucky Chicken Trap Dash
 //
 //  Created by Dias Atudinov on 28.03.2025.
@@ -8,8 +8,8 @@
 
 import UIKit
 
-class SLDeviceInfo {
-    static let shared = SLDeviceInfo()
+class CTDDeviceManager {
+    static let shared = CTDDeviceManager()
     
     var deviceType: UIUserInterfaceIdiom
     
