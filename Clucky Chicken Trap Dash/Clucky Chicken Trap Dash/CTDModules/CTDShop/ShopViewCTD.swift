@@ -34,7 +34,9 @@ struct ShopViewCTD: View {
                                 .scaledToFit()
                                 .frame(height: 50)
                                 .onTapGesture {
-                                    shopType = .skills
+                                    withAnimation {
+                                        shopType = .skills
+                                    }
                                 }
                             
                             Image(shopType == .skins ? .skinsIconCTD : .skinsOffIconCTD)
@@ -42,7 +44,9 @@ struct ShopViewCTD: View {
                                 .scaledToFit()
                                 .frame(height: 50)
                                 .onTapGesture {
-                                    shopType = .skins
+                                    withAnimation {
+                                        shopType = .skins
+                                    }
                                 }
                         }
                         HStack(spacing: 40) {
