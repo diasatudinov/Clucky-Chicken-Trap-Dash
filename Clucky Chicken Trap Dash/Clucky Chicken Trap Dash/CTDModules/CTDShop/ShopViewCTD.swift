@@ -51,7 +51,7 @@ struct ShopViewCTD: View {
                         }
                         HStack(spacing: 40) {
                             if shopType == .skills {
-                                
+                                shopItem()
                             } else {
                                 VStack {
                                     Image(.firstChickenCTD)
@@ -159,6 +159,36 @@ struct ShopViewCTD: View {
             
         )
     }
+    
+    @ViewBuilder
+    func shopItem() -> some View {
+        VStack {
+            Image(.item1CTD)
+                .resizable()
+                .scaledToFit()
+                .frame(height: CTDDeviceManager.shared.deviceType == .pad ? 252:126)
+            Button {
+                
+            } label: {
+                ZStack {
+                    Image(.deskBgCTD)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(height: CTDDeviceManager.shared.deviceType == .pad ? 100:50)
+                    HStack {
+                        Image(.coinIconCTD)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(height: CTDDeviceManager.shared.deviceType == .pad ? 46:28)
+                        Text("100")
+                            .font(.system(size: 20, weight: .black))
+                            .foregroundStyle(.white)
+                    }
+                }
+            }
+        }
+    }
+    
 }
 
 #Preview {
