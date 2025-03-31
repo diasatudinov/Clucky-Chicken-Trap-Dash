@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "logoIconCTD.png",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}
