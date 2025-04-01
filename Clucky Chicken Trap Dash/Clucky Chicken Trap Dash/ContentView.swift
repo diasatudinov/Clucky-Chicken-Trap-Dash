@@ -11,6 +11,7 @@ class BattleScene: SKScene {
     // Узлы для героя и врага
     var hero: SKSpriteNode!
     var enemy: SKSpriteNode!
+    var man: SKSpriteNode!
     
     // Здоровье героя
     let heroMaxHealth: Int = 100
@@ -56,7 +57,7 @@ class BattleScene: SKScene {
         
         startTime = CACurrentMediaTime()
         // Настройка фонового изображения
-        let bgTexture = SKTexture(imageNamed: "field1CTD")
+        let bgTexture = SKTexture(imageNamed: "field\(Int.random(in: 1...4))CTD")
         bg1 = SKSpriteNode(texture: bgTexture)
         bg1.anchorPoint = .zero
         bg1.position = .zero
@@ -72,13 +73,23 @@ class BattleScene: SKScene {
         bg2.size = self.size
         addChild(bg2)
         
+
         
         
         // Настройка героя
         hero = SKSpriteNode(imageNamed: "heroRun2")
-        hero.position = CGPoint(x: size.width * 0.25, y: size.height/2.3)
+        hero.position = CGPoint(x: size.width * 0.25, y: size.height/2.9)
         hero.size = CGSize(width: 142, height: 160)
         addChild(hero)
+        
+        // Создаем персонажа "man", который находится позади героя
+        man = SKSpriteNode(imageNamed: "manRun1")
+        man.position = CGPoint(x: hero.position.x - 120, y: hero.position.y + 30) // смещён немного влево
+        man.size = CGSize(width: 90, height: 210)
+        man.zPosition = hero.zPosition - 1  // позади героя
+        addChild(man)
+        // В начале битвы герой стоит — поэтому "man" остается статичным
+        stopManRunningAnimation()
         
         // Спавн первого врага
         spawnEnemy()
@@ -87,22 +98,39 @@ class BattleScene: SKScene {
         startBattleCycle()
     }
     
-    // MARK: Анимация героя
-    func startHeroRunningAnimation() {
+    func startManRunningAnimation() {
         let runTextures = [
-            SKTexture(imageNamed: "heroRun1"),
-            SKTexture(imageNamed: "heroRun2"),
-            
+            SKTexture(imageNamed: "manRun1"),
+            SKTexture(imageNamed: "manRun2"),
+            SKTexture(imageNamed: "manRun3"),
+            SKTexture(imageNamed: "manRun4"),
+            SKTexture(imageNamed: "manRun5"),
+            SKTexture(imageNamed: "manRun6"),
+            SKTexture(imageNamed: "manRun7"),
+            SKTexture(imageNamed: "manRun8"),
+            SKTexture(imageNamed: "manRun9"),
+            SKTexture(imageNamed: "manRun10"),
         ]
         let runAnimation = SKAction.animate(with: runTextures, timePerFrame: 0.1)
         let runLoop = SKAction.repeatForever(runAnimation)
-        hero.run(runLoop, withKey: "heroRunning")
+        man.run(runLoop, withKey: "manRunning")
     }
-    
+
+    func stopManRunningAnimation() {
+        man.removeAction(forKey: "manRunning")
+        // Можно установить статичное изображение, если нужно
+        man.texture = SKTexture(imageNamed: "manRun1")
+    }
 
     func startBattleIdleAnimation() {
         // Можно использовать статичное изображение
         hero.texture = SKTexture(imageNamed: "heroRun2")
+        
+            // Останавливаем любые анимации бега
+            hero.removeAction(forKey: "transitionRunning")
+            
+            // Останавливаем анимацию для "man"
+            stopManRunningAnimation()
         
     }
     
@@ -309,6 +337,8 @@ class BattleScene: SKScene {
         let runAnimation = SKAction.animate(with: runTextures, timePerFrame: 0.1)
         let runLoop = SKAction.repeatForever(runAnimation)
         hero.run(runLoop, withKey: "transitionRunning")
+        
+        startManRunningAnimation()
     }
     
     func spawnEnemyDuringTransition(duration: TimeInterval) {
