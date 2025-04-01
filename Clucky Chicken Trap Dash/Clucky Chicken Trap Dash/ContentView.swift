@@ -3,6 +3,7 @@ import SpriteKit
 
 // MARK: - Основной класс игровой сцены
 class BattleScene: SKScene {
+    var viewModel: GameViewModel?
     // Фоновое изображение
     var bg1: SKSpriteNode!
     var bg2: SKSpriteNode!
@@ -23,12 +24,21 @@ class BattleScene: SKScene {
         didSet { updateHealthBars() }
     }
     
+    var startTime: TimeInterval = 0
+    
     // Узлы полос здоровья
     var heroHealthBar: SKSpriteNode!
     var enemyHealthBar: SKSpriteNode!
-    
-    // Индекс текущего врага (от 0 до 5, где 5 – босс)
-    var currentEnemyIndex: Int = 0
+    var isBossRound = false
+    var currentEnemyIndex: Int = 0 {
+        didSet {
+            if currentEnemyIndex + 1 == totalEnemies - 1 {
+                isBossRound = true
+            } else {
+                isBossRound = false
+            }
+        }
+    }
     let totalEnemies: Int = 6  // 5 обычных + 1 босс
     
     // Ключ для цикла автоатаки
@@ -38,10 +48,13 @@ class BattleScene: SKScene {
     var transitionDistanceRemaining: CGFloat = 0
     var transitionSpeed: CGFloat = 0  // пикселей в секунду
     var lastUpdateTime: TimeInterval = 0
+
+    var currentEnemyType: String?
     
     override func didMove(to view: SKView) {
-        backgroundColor = .white
+        backgroundColor = .systemMint
         
+        startTime = CACurrentMediaTime()
         // Настройка фонового изображения
         let bgTexture = SKTexture(imageNamed: "field1CTD")
         bg1 = SKSpriteNode(texture: bgTexture)
@@ -62,13 +75,10 @@ class BattleScene: SKScene {
         
         
         // Настройка героя
-        hero = SKSpriteNode(imageNamed: "heroRun1")
-        hero.position = CGPoint(x: size.width * 0.25, y: size.height/2)
+        hero = SKSpriteNode(imageNamed: "heroRun2")
+        hero.position = CGPoint(x: size.width * 0.25, y: size.height/2.3)
+        hero.size = CGSize(width: 142, height: 160)
         addChild(hero)
-        startHeroRunningAnimation()
-        
-        // Создание полосы здоровья героя
-        setupHeroHealthBar()
         
         // Спавн первого врага
         spawnEnemy()
@@ -81,42 +91,19 @@ class BattleScene: SKScene {
     func startHeroRunningAnimation() {
         let runTextures = [
             SKTexture(imageNamed: "heroRun1"),
-            SKTexture(imageNamed: "heroRun2")
+            SKTexture(imageNamed: "heroRun2"),
+            
         ]
         let runAnimation = SKAction.animate(with: runTextures, timePerFrame: 0.1)
         let runLoop = SKAction.repeatForever(runAnimation)
         hero.run(runLoop, withKey: "heroRunning")
     }
     
-    // MARK: Полосы здоровья
-    func setupHeroHealthBar() {
-        let barWidth: CGFloat = 100
-        let barHeight: CGFloat = 10
+
+    func startBattleIdleAnimation() {
+        // Можно использовать статичное изображение
+        hero.texture = SKTexture(imageNamed: "heroRun2")
         
-        // Фон для полосы героя
-        let heroHealthBackground = SKSpriteNode(color: .red, size: CGSize(width: barWidth, height: barHeight))
-        heroHealthBackground.position = CGPoint(x: hero.position.x, y: hero.position.y + hero.size.height/2 + 20)
-        addChild(heroHealthBackground)
-        
-        heroHealthBar = SKSpriteNode(color: .green, size: CGSize(width: barWidth, height: barHeight))
-        heroHealthBar.anchorPoint = CGPoint(x: 0, y: 0.5)
-        heroHealthBar.position = CGPoint(x: heroHealthBackground.position.x - barWidth/2, y: heroHealthBackground.position.y)
-        addChild(heroHealthBar)
-    }
-    
-    func setupEnemyHealthBar() {
-        let barWidth: CGFloat = 100
-        let barHeight: CGFloat = 10
-        
-        // Фон для полосы врага
-        let enemyHealthBackground = SKSpriteNode(color: .red, size: CGSize(width: barWidth, height: barHeight))
-        enemyHealthBackground.position = CGPoint(x: enemy.position.x, y: enemy.position.y + enemy.size.height/2 + 20)
-        addChild(enemyHealthBackground)
-        
-        enemyHealthBar = SKSpriteNode(color: .green, size: CGSize(width: barWidth, height: barHeight))
-        enemyHealthBar.anchorPoint = CGPoint(x: 0, y: 0.5)
-        enemyHealthBar.position = CGPoint(x: enemyHealthBackground.position.x - barWidth/2, y: enemyHealthBackground.position.y)
-        addChild(enemyHealthBar)
     }
     
     override func update(_ currentTime: TimeInterval) {
@@ -130,11 +117,10 @@ class BattleScene: SKScene {
             let moveAmount = transitionSpeed * CGFloat(dt)
             transitionDistanceRemaining -= moveAmount
             
-            // Двигаем оба фоновых узла влево
             bg1.position.x -= moveAmount
             bg2.position.x -= moveAmount
             
-            // Бесшовный скроллинг: если один фон полностью ушёл за экран, перемещаем его вправо за второй
+            // Бесшовный скроллинг фона
             if bg1.position.x + bg1.size.width < 0 {
                 bg1.position.x = bg2.position.x + bg2.size.width - 1
             }
@@ -142,22 +128,17 @@ class BattleScene: SKScene {
                 bg2.position.x = bg1.position.x + bg1.size.width - 1
             }
             
-            // Если сдвиг завершён – завершаем переход
             if transitionDistanceRemaining <= 0 {
                 isTransitioning = false
-                // Останавливаем анимацию переходного бега и возвращаем основную анимацию героя
                 hero.removeAction(forKey: "transitionRunning")
-                startHeroRunningAnimation()
-                
-                // Спавним следующего врага
+                // После перехода герой возвращается в idle (боевая) анимацию
+                startBattleIdleAnimation()
                 currentEnemyIndex += 1
-                spawnEnemy()
                 startBattleCycle()
             }
         }
         
-        // Если не в переходе, можно оставить фон на месте (или, если нужна непрерывная прокрутка – добавить логику для движения)
-        // Бесшовный скроллинг всегда актуален:
+        // Постоянная проверка бесшовного скроллинга (если фон движется постоянно)
         if bg1.position.x + bg1.size.width < 0 {
             bg1.position.x = bg2.position.x + bg2.size.width - 1
         }
@@ -166,13 +147,20 @@ class BattleScene: SKScene {
         }
     }
     
-    
     func updateHealthBars() {
+        // Обновляем графику (если используется SKSpriteNode-полоса здоровья)
+        // Например:
         let heroRatio = CGFloat(heroHealth) / CGFloat(heroMaxHealth)
         heroHealthBar?.xScale = max(heroRatio, 0)
         
         let enemyRatio = CGFloat(enemyHealth) / CGFloat(enemyMaxHealth)
         enemyHealthBar?.xScale = max(enemyRatio, 0)
+        
+        // Обновляем модель для SwiftUI
+        viewModel?.heroHealth = heroHealth
+        viewModel?.heroMaxHealth = heroMaxHealth
+        viewModel?.enemyHealth = enemyHealth
+        viewModel?.enemyMaxHealth = enemyMaxHealth
     }
     
     // MARK: Спавн врага
@@ -181,21 +169,20 @@ class BattleScene: SKScene {
         enemyHealthBar?.removeFromParent()
         
         heroHealth = 100
-        enemy = SKSpriteNode(imageNamed: "enemyRun1")
-        // Враг появляется за пределами правой стороны экрана
-        enemy.position = CGPoint(x: size.width + enemy.size.width/2, y: size.height/2)
+        let enemyImageName = "\(getEnemyImageName())Hit1"
+        enemy = SKSpriteNode(imageNamed: enemyImageName)
+        // Враг появляется на позиции боя (например, 75% ширины экрана)
+        enemy.position = CGPoint(x: size.width * 0.75, y: size.height / 2.5)
+        enemy.size = CGSize(width: 142, height: 160)
         addChild(enemy)
         
-        // Анимация входа: враг заезжает на позицию (например, x = 75% ширины экрана)
-        let targetX = size.width * 0.75
-        let moveAction = SKAction.moveTo(x: targetX, duration: 1.0)
-        enemy.run(moveAction)
-        
-        // Увеличиваем здоровье врага с каждым новым (первые 5 – обычные, 6-й – босс)
+        // Обновляем характеристики врага (увеличиваются с каждым новым)
         enemyMaxHealth = 100 + currentEnemyIndex * 20
         enemyHealth = enemyMaxHealth
-        setupEnemyHealthBar()
-        print("Появился враг \(currentEnemyIndex + 1) с здоровьем \(enemyHealth)")
+       // setupEnemyHealthBar()
+        
+        print("Появился враг \(currentEnemyIndex + 1) с изображением \(enemyImageName) и здоровьем \(enemyHealth)")
+
     }
     
     // MARK: Цикл боя (автоатака)
@@ -227,19 +214,8 @@ class BattleScene: SKScene {
         ])
         enemy.run(enemyStep)
         
-        // Анимация удара (смена кадров)
-        let heroAttackTextures = [
-            SKTexture(imageNamed: "heroHit1"),
-            SKTexture(imageNamed: "heroHit2")
-        ]
-        let heroAttackAnim = SKAction.animate(with: heroAttackTextures, timePerFrame: 0.2)
-        hero.run(heroAttackAnim)
-        
-        let enemyAttackTextures = [
-            SKTexture(imageNamed: "enemyHit1"),
-            SKTexture(imageNamed: "enemyHit2")
-        ]
-        let enemyAttackAnim = SKAction.animate(with: enemyAttackTextures, timePerFrame: 0.2)
+        let enemyHitTextures = getEnemyHitAnimationTextures()
+        let enemyAttackAnim = SKAction.animate(with: enemyHitTextures, timePerFrame: 0.08)
         enemy.run(enemyAttackAnim)
         
         // Рассчитываем урон – базовый урон растёт с каждым новым врагом
@@ -249,6 +225,9 @@ class BattleScene: SKScene {
         
         showDamage(on: enemy, damage: damage)
         showDamage(on: hero, damage: damage)
+        
+        viewModel?.totalDamageDealt += damage
+        viewModel?.accumulatedDamageTaken += damage
         
         print("Герой и враг обменялись ударами, нанесено \(damage) урона.")
         
@@ -290,99 +269,269 @@ class BattleScene: SKScene {
             guard let self = self else { return }
             self.enemy.removeFromParent()
             
-            // Если побеждён последний враг (босс) – завершаем игру победой
+            // Если это босс – завершаем игру победой
             if self.currentEnemyIndex == self.totalEnemies - 1 {
-                self.victory()
+                self.endGame(victory: true)
                 return
             }
             
-            // Переключаем героя на анимацию переходного бега (с 4 изображениями)
+            // Переключаем героя на переходную анимацию (4 кадра)
             self.hero.removeAction(forKey: "heroRunning")
             self.startTransitionRunningAnimation()
             
-            // Запускаем переход: фон будет сдвигаться влево, создавая эффект перебега
-            // Здесь фон сдвинется на 30% ширины экрана за 1.5 сек
+            // Переход длится 4 секунды. Пусть фон сдвинется влево на 30% ширины сцены.
+            let transitionDuration: TimeInterval = 4.0
+            let transitionDistance = self.size.width * 0.3
             self.isTransitioning = true
-            self.transitionDistanceRemaining = self.size.width * 0.3
-            self.transitionSpeed = self.transitionDistanceRemaining / 1.5
-            // Пока update(_:) будет двигать фон – после завершения перехода будут вызваны spawnEnemy() и startBattleCycle()
+            self.transitionDistanceRemaining = transitionDistance
+            self.transitionSpeed = transitionDistance / CGFloat(transitionDuration)
+            
+            // Спавним нового врага сразу во время перехода
+            self.spawnEnemyDuringTransition(duration: transitionDuration)
         }
+        
+        viewModel?.totalEnemiesKilled += 1
+        let totalKilled = currentEnemyIndex + 1
+            // Обновляем пройденный путь как процент
+            viewModel?.distanceTraveled = CGFloat(Double(totalKilled) / Double(totalEnemies) * 100)
+        
+        let transitionDistance = size.width * 0.3
+//        viewModel?.distanceTraveled += transitionDistance
     }
     
     func startTransitionRunningAnimation() {
         let runTextures = [
-            SKTexture(imageNamed: "runImage1"),
-            SKTexture(imageNamed: "runImage2"),
-            SKTexture(imageNamed: "runImage3"),
-            SKTexture(imageNamed: "runImage4")
+            SKTexture(imageNamed: "heroRun1"),
+            SKTexture(imageNamed: "heroRun2"),
+            SKTexture(imageNamed: "heroRun3"),
+            SKTexture(imageNamed: "heroRun4")
         ]
         let runAnimation = SKAction.animate(with: runTextures, timePerFrame: 0.1)
         let runLoop = SKAction.repeatForever(runAnimation)
         hero.run(runLoop, withKey: "transitionRunning")
     }
     
+    func spawnEnemyDuringTransition(duration: TimeInterval) {
+        enemy?.removeFromParent()
+        enemyHealthBar?.removeFromParent()
+        
+        let enemyImageName = "\(getEnemyImageName())Hit1"
+        enemy = SKSpriteNode(imageNamed: enemyImageName)
+        // Враг появляется за правой границей экрана
+        enemy.position = CGPoint(x: size.width + enemy.size.width / 2, y: size.height / 2.5)
+        enemy.size = CGSize(width: 142, height: 160)
+        addChild(enemy)
+        
+        enemyMaxHealth = 100 + currentEnemyIndex * 20
+        enemyHealth = enemyMaxHealth
+       //setupEnemyHealthBar()
+        
+        print("Появляется враг \(currentEnemyIndex + 2) с изображением \(enemyImageName) и здоровьем \(enemyHealth)")
+        
+        let targetX = size.width * 0.75
+        let moveAction = SKAction.moveTo(x: targetX, duration: duration)
+        enemy.run(moveAction)
+    }
+    
     func heroDefeated() {
         print("Герой погиб! Игра окончена.")
-        removeAllActions()
-        let gameOverLabel = SKLabelNode(text: "Game Over!")
-        gameOverLabel.fontSize = 40
-        gameOverLabel.fontColor = .black
-        gameOverLabel.position = CGPoint(x: size.width/2, y: size.height/2)
-        addChild(gameOverLabel)
+        endGame(victory: false)
+    }
+    
+//    func isBossRound() -> Bool {
+//        return currentEnemyIndex == totalEnemies - 1
+//    }
+    
+    func getEnemyHitAnimationTextures() -> [SKTexture] {
+        guard let enemyType = currentEnemyType else {
+            // Если тип не выбран, можно вернуть пустой массив или использовать значение по умолчанию.
+            return []
+        }
+        
+        // Формируем имена кадров удара на основе выбранного типа врага
+        let hitImageNames = [
+            "\(enemyType)Hit1",
+            "\(enemyType)Hit2",
+            "\(enemyType)Hit3",
+            "\(enemyType)Hit4"
+        ]
+        return hitImageNames.map { SKTexture(imageNamed: $0) }
+    }
+
+    // Возвращает имя картинки для врага в зависимости от того, босс это или обычный враг.
+    func getEnemyImageName() -> String {
+        if isBossRound {
+            let bossImages = ["boss1", "boss2", "boss3", "boss4"]
+            let selected = bossImages.randomElement()!
+            currentEnemyType = selected
+            print("Boss round! Selected boss image: \(selected)")
+            return selected
+        } else {
+            let enemyImages = ["enemy1", "enemy2", "enemy3"]
+            let selected = enemyImages.randomElement()!
+            currentEnemyType = selected
+            print("Enemy round! Selected Enemy image: \(selected)")
+            return selected
+        }
     }
     
     func victory() {
         print("Победа! Босс побеждён!")
         removeAllActions()
-        let victoryLabel = SKLabelNode(text: "Victory!")
-        victoryLabel.fontSize = 40
-        victoryLabel.fontColor = .black
-        victoryLabel.position = CGPoint(x: size.width/2, y: size.height/2)
-        addChild(victoryLabel)
+    }
+    
+    func endGame(victory: Bool) {
+        removeAllActions()
+        // Подсчитываем общее время игры
+        let endTime = CACurrentMediaTime()
+        viewModel?.totalTime = endTime - startTime
+        // Подсчитываем потерянное здоровье (например, сколько урона получил герой за всю игру)
+        viewModel?.healthLost = viewModel?.accumulatedDamageTaken ?? 0
+        
+        // Устанавливаем флаг завершения игры
+        viewModel?.gameEnded = true
     }
 }
 
 // MARK: - SwiftUI интерфейс для отображения игры
 struct ContentView: View {
+    @StateObject private var gameViewModel = GameViewModel()
+    @StateObject var shopVM = ShopViewModelCTD()
     @State private var scene = BattleScene(size: CGSize(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height))
     
-    
     var body: some View {
-        ZStack {
-            SpriteView(scene: scene)
-                .ignoresSafeArea()
-            
-            // Пример кнопки для дополнительной атаки (если требуется)
-            VStack {
-                Spacer()
-                HStack {
-                    Button(action: {
-                        scene.applyExtraDamage()
-                    }) {
-                        Text("Extra Attack")
-                            .padding()
-                            .background(Color.red)
-                            .foregroundColor(.white)
-                            .cornerRadius(10)
+            ZStack {
+                // Отображаем SKScene
+                SpriteView(scene: scene)
+                    .ignoresSafeArea()
+                    .onAppear {
+                        // Передаем модель в сцену
+                        scene.viewModel = gameViewModel
                     }
+                
+                // SwiftUI-оверлей с HP баром
+                VStack {
+                    HStack {
+                        HPBarView(title: "Hero HP",
+                                  current: gameViewModel.heroHealth,
+                                  max: gameViewModel.heroMaxHealth)
+                            .padding()
+                        Spacer()
+                        HPBarView(title: "Enemy HP",
+                                  current: gameViewModel.enemyHealth,
+                                  max: gameViewModel.enemyMaxHealth)
+                            .padding()
+                    }
+                    
+                   ProgressView("Distance", value: Float(gameViewModel.distanceTraveled), total: 100)
+                                 //      .padding()
+                    
+                    Spacer()
+                    
+                    HStack {
+                        Button(action: {
+                            scene.applyExtraDamage()
+                        }) {
+                            Text("Extra Attack")
+                                .padding()
+                                .background(Color.red)
+                                .foregroundColor(.white)
+                                .cornerRadius(10)
+                        }
+                    }
+                    .padding(.bottom, 50)
                 }
-                .padding(.bottom, 50)
+                
+                if gameViewModel.gameEnded {
+                    GameSummaryView(viewModel: gameViewModel)
+                        .frame(width: 300, height: 300)
+                        .background(Color.white.opacity(0.9))
+                        .cornerRadius(20)
+                }
             }
         }
+    }
+
+struct HPBarView: View {
+    var title: String
+    var current: Int
+    var max: Int
+    
+    var clampedCurrent: Int {
+        // Если max равен 0, возвращаем 0, чтобы не было деления на ноль.
+        guard max > 0 else { return 0 }
+        return Swift.max(0, min(current, max))
+    }
+    
+    var body: some View {
+        VStack(alignment: .leading) {
+            Text(title)
+                .font(.caption)
+                .foregroundColor(.white)
+            ProgressView(value: Float(clampedCurrent), total: Float(max > 0 ? max : 1))                .progressViewStyle(LinearProgressViewStyle(tint: .green))
+                .frame(width: 150)
+        }
+        .padding(8)
+        .background(Color.black.opacity(0.5))
+        .cornerRadius(8)
+    }
+}
+
+struct GameSummaryView: View {
+    @ObservedObject var viewModel: GameViewModel
+    
+    var body: some View {
+        VStack(spacing: 10) {
+            Text("Game Summary")
+                .font(.title)
+                .bold()
+            Text("Total Enemies Killed: \(viewModel.totalEnemiesKilled)")
+            Text("Total Time: \(String(format: "%.1f", viewModel.totalTime)) sec")
+            Text("Health Lost: \(viewModel.healthLost)")
+            Text("Total Damage: \(viewModel.totalDamageDealt)")
+            Text("Pepper Usage: \(viewModel.pepperUsage)")
+            Button("Close") {
+                // Здесь можно добавить логику перезапуска игры
+            }
+            .padding(.top, 10)
+        }
+        .padding()
     }
 }
 
 extension BattleScene {
     // Метод для ручной атаки (если требуется)
     func applyExtraDamage() {
-        let extraDamage = 5
-        enemyHealth -= extraDamage
-        showDamage(on: enemy, damage: extraDamage)
-        print("Ручная атака: нанесено дополнительно \(extraDamage) урона")
-        checkBattleStatus()
+        if !isTransitioning {
+            let extraDamage = 15
+            enemyHealth -= extraDamage
+            showDamage(on: enemy, damage: extraDamage)
+            print("Ручная атака: нанесено дополнительно \(extraDamage) урона")
+            checkBattleStatus()
+        }
     }
 }
 
+import Combine
+
+class GameViewModel: ObservableObject {
+    @Published var heroHealth: Int = 100
+    @Published var heroMaxHealth: Int = 100
+    @Published var enemyHealth: Int = 100
+    @Published var enemyMaxHealth: Int = 100
+    
+    // Статистика игры
+        @Published var distanceTraveled: CGFloat = 0
+        @Published var totalEnemiesKilled: Int = 0
+        @Published var totalTime: TimeInterval = 0
+        @Published var healthLost: Int = 0
+        @Published var totalDamageDealt: Int = 0
+        @Published var accumulatedDamageTaken: Int = 0
+        @Published var pepperUsage: Int = 0
+        
+        // Флаг завершения игры
+        @Published var gameEnded: Bool = false
+}
 
 #Preview {
     ContentView()

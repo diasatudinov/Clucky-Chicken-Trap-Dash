@@ -6,7 +6,7 @@ struct MenuViewSL: View {
     @State private var showStatistics = false
     @State private var showSettings = false
     
-//    @StateObject var shopVM = ShopViewModelSL()
+    @StateObject var shopVM = ShopViewModelCTD()
     @StateObject var settingsVM = SettingsViewModelCTD()
 //    @StateObject var achievementVM = AchievementsViewModel()
     var body: some View {
@@ -99,7 +99,7 @@ struct MenuViewSL: View {
                 PickChickenViewCTD()
             }
             .fullScreenCover(isPresented: $showShop) {
-                ShopViewCTD()
+                ShopViewCTD(viewModel: shopVM)
             }
             .fullScreenCover(isPresented: $showStatistics) {
                 StatisticsViewCTD()

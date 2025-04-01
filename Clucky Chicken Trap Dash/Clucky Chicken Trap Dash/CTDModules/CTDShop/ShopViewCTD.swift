@@ -14,6 +14,8 @@ struct ShopViewCTD: View {
         case skins
     }
     @State private var shopType: ShopType = .skills
+    
+    @ObservedObject var viewModel: ShopViewModelCTD
     var body: some View {
         ZStack {
             VStack {
@@ -49,9 +51,15 @@ struct ShopViewCTD: View {
                                     }
                                 }
                         }
-                        HStack(spacing: 40) {
+                        HStack(spacing: 0) {
                             if shopType == .skills {
-                                shopItem()
+                                
+                                ForEach(viewModel.shopTeamItems,
+                                        id: \.self)
+                                { item in
+                                    shopItem(item: item)
+                                }
+                                
                             } else {
                                 VStack {
                                     Image(.firstChickenCTD)
@@ -161,14 +169,27 @@ struct ShopViewCTD: View {
     }
     
     @ViewBuilder
-    func shopItem() -> some View {
+    func shopItem(item: Item) -> some View {
         VStack {
-            Image(.item1CTD)
-                .resizable()
-                .scaledToFit()
-                .frame(height: CTDDeviceManager.shared.deviceType == .pad ? 252:126)
-            Button {
+            ZStack {
+                Image("\(item.name)")
+                    .resizable()
+                    .scaledToFit()
                 
+                if item.name != "item6CTD" {
+                    VStack {
+                        Spacer()
+                        Text("\(item.level)")
+                            .font(.system(size: 19, weight: .black))
+                            .foregroundStyle(.black)
+                            .offset(x: 28, y: -11)
+                    }
+                }
+            }
+            .frame(height: CTDDeviceManager.shared.deviceType == .pad ? 240:120)
+            
+            Button {
+                viewModel.buyItem(for: item)
             } label: {
                 ZStack {
                     Image(.deskBgCTD)
@@ -180,7 +201,7 @@ struct ShopViewCTD: View {
                             .resizable()
                             .scaledToFit()
                             .frame(height: CTDDeviceManager.shared.deviceType == .pad ? 46:28)
-                        Text("100")
+                        Text("\(item.cost)")
                             .font(.system(size: 20, weight: .black))
                             .foregroundStyle(.white)
                     }
@@ -192,5 +213,5 @@ struct ShopViewCTD: View {
 }
 
 #Preview {
-    ShopViewCTD()
+    ShopViewCTD(viewModel: ShopViewModelCTD())
 }

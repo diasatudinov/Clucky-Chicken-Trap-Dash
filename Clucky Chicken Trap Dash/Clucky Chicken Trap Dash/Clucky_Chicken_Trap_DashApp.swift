@@ -12,6 +12,7 @@ struct Clucky_Chicken_Trap_DashApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+            
         }
     }
 }

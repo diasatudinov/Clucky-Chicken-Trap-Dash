@@ -1,23 +1,28 @@
+//
+//  ShopViewModelSL.swift
+//  Clucky Chicken Trap Dash
+//
+//  Created by Dias Atudinov on 01.04.2025.
+//
+
+
 import SwiftUI
 
-class ShopViewModelSL: ObservableObject {
+class ShopViewModelCTD: ObservableObject {
     @Published var shopTeamItems: [Item] = [
         
-        Item(name: "Item 1", image: "loadingViewBgSL", icon: "itemIcon1"),
-        Item(name: "Item 2", image: "itemImage2", icon: "itemIcon2"),
-        Item(name: "Item 3", image: "gameTypeBgSL", icon: "itemIcon3"),
-        Item(name: "Item 4", image: "settingsViewBgSL", icon: "itemIcon4"),
-        Item(name: "Item 5", image: "ItemImage5", icon: "itemIcon5"),
-        Item(name: "Item 6", image: "ItemImage6", icon: "itemIcon6"),
+        Item(name: "item1CTD", level: 1, maxLevel: 5, effect: 5, cost: 0, bought: true),
+        Item(name: "item2CTD", level: 1, maxLevel: 5, effect: 2, cost: 0, bought: true),
+        Item(name: "item3CTD", level: 1, maxLevel: 5, effect: 100, cost: 0, bought: true),
+        Item(name: "item4CTD", level: 1, maxLevel: 3, effect: 5, cost: 500, bought: false),
+        Item(name: "item5CTD", level: 1, maxLevel: 3, effect: 5, cost: 300, bought: false),
+        Item(name: "item6CTD", level: 1, maxLevel: 1, effect: 5, cost: 2000, bought: false),
+        
     ]
     
     @Published var boughtItems: [Item] = [
-        Item(name: "Item 1", image: "birdYellow", icon: "itemIcon1"),
-    ] {
-        didSet {
-            saveBoughtItem()
-        }
-    }
+        
+    ]
     
     @Published var currentTeamItem: Item? {
         didSet {
@@ -33,6 +38,97 @@ class ShopViewModelSL: ObservableObject {
     private let userDefaultsTeamKey = "saveCurrentItemImage"
     private let userDefaultsBoughtKey = "boughtItem"
 
+    func buyItem(for item: Item) {
+        guard let index = shopTeamItems.firstIndex(where: { $0.name == item.name }) else {
+            return
+        }
+        
+        if shopTeamItems[index].level < shopTeamItems[index].maxLevel {
+            shopTeamItems[index].level += 1
+            
+            switch shopTeamItems[index].name {
+            case "item1CTD":
+                switch shopTeamItems[index].level {
+                case 2:
+                    shopTeamItems[index].cost += 50
+                    shopTeamItems[index].effect += 5
+                case 3:
+                    shopTeamItems[index].cost += 50
+                    shopTeamItems[index].effect += 5
+                case 4:
+                    shopTeamItems[index].cost += 150
+                    shopTeamItems[index].effect += 5
+                case 5:
+                    shopTeamItems[index].cost += 250
+                    shopTeamItems[index].effect += 10
+                default:
+                    print("fail")
+                }
+                
+            case "item2CTD":
+                switch shopTeamItems[index].level {
+                case 2:
+                    shopTeamItems[index].cost += 50
+                    shopTeamItems[index].effect += 3
+                case 3:
+                    shopTeamItems[index].cost += 100
+                    shopTeamItems[index].effect += 3
+                case 4:
+                    shopTeamItems[index].cost += 150
+                    shopTeamItems[index].effect += 4
+                case 5:
+                    shopTeamItems[index].cost += 300
+                    shopTeamItems[index].effect += 8
+                default:
+                    print("fail")
+                }
+            case "item3CTD":
+                switch shopTeamItems[index].level {
+                case 2:
+                    shopTeamItems[index].cost += 100
+                    shopTeamItems[index].effect += 50
+                case 3:
+                    shopTeamItems[index].cost += 150
+                    shopTeamItems[index].effect += 50
+                case 4:
+                    shopTeamItems[index].cost += 150
+                    shopTeamItems[index].effect += 100
+                case 5:
+                    shopTeamItems[index].cost += 500
+                    shopTeamItems[index].effect += 200
+                default:
+                    print("fail")
+                }
+            case "item4CTD":
+                switch shopTeamItems[index].level {
+                case 2:
+                    shopTeamItems[index].cost += 500
+                case 3:
+                    shopTeamItems[index].cost += 1000
+                default:
+                    print("fail")
+                }
+            case "item5CTD":
+                switch shopTeamItems[index].level {
+                case 2:
+                    shopTeamItems[index].cost += 300
+                case 3:
+                    shopTeamItems[index].cost += 400
+                default:
+                    print("fail")
+                }
+            case "item6CTD":
+                print("item6CTD")
+                
+            default: break
+                //
+            }
+        }
+        
+        
+        
+        
+    }
     
     func saveTeam() {
         if let currentItem = currentTeamItem {
@@ -73,6 +169,9 @@ class ShopViewModelSL: ObservableObject {
 struct Item: Codable, Hashable {
     var id = UUID()
     var name: String
-    var image: String
-    var icon: String
+    var level: Int
+    var maxLevel: Int
+    var effect: Int
+    var cost: Int
+    var bought: Bool
 }
