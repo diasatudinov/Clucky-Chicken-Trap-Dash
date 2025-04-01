@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct ShopViewCTD: View {
+    @StateObject var user = CTDUser.shared
     @Environment(\.presentationMode) var presentationMode
     private enum ShopType {
         case skills
@@ -67,18 +68,29 @@ struct ShopViewCTD: View {
                                         .scaledToFit()
                                         .frame(height: CTDDeviceManager.shared.deviceType == .pad ? 252:126)
                                     Button {
-                                        
+                                        if user.money >= 0 {
+                                            user.minusUserMoney(for: 0)
+                                            let item = "hero1"
+                                            if !viewModel.boughtItems.contains(item) {
+                                                viewModel.boughtItems.append(item)
+                                            }
+                                        }
                                     } label: {
                                         ZStack {
                                             Image(.deskBgCTD)
                                                 .resizable()
                                                 .scaledToFit()
                                                 .frame(height: CTDDeviceManager.shared.deviceType == .pad ? 100:50)
-                                            HStack {
+                                            HStack(spacing: 0) {
                                                 Image(.coinIconCTD)
                                                     .resizable()
                                                     .scaledToFit()
                                                     .frame(height: CTDDeviceManager.shared.deviceType == .pad ? 46:28)
+                                                
+                                                Text("0")
+                                                    .font(.system(size: 20, weight: .black))
+                                                    .foregroundStyle(.white)
+                                                    .frame(width: CTDDeviceManager.shared.deviceType == .pad ? 110:55)
                                             }
                                         }
                                     }
@@ -90,18 +102,29 @@ struct ShopViewCTD: View {
                                         .scaledToFit()
                                         .frame(height: CTDDeviceManager.shared.deviceType == .pad ? 252:126)
                                     Button {
-                                        
+                                        if user.money >= 2000 {
+                                            user.minusUserMoney(for: 2000)
+                                            let item = "hero2"
+                                            if !viewModel.boughtItems.contains(item) {
+                                                viewModel.boughtItems.append(item)
+                                            }
+                                        }
                                     } label: {
                                         ZStack {
                                             Image(.deskBgCTD)
                                                 .resizable()
                                                 .scaledToFit()
                                                 .frame(height: CTDDeviceManager.shared.deviceType == .pad ? 100:50)
-                                            HStack {
+                                            HStack(spacing: 0) {
                                                 Image(.coinIconCTD)
                                                     .resizable()
                                                     .scaledToFit()
                                                     .frame(height: CTDDeviceManager.shared.deviceType == .pad ? 46:28)
+                                                
+                                                Text("2000")
+                                                    .font(.system(size: 20, weight: .black))
+                                                    .foregroundStyle(.white)
+                                                    .frame(width: CTDDeviceManager.shared.deviceType == .pad ? 120:60)
                                             }
                                         }
                                     }
@@ -113,18 +136,29 @@ struct ShopViewCTD: View {
                                         .scaledToFit()
                                         .frame(height: CTDDeviceManager.shared.deviceType == .pad ? 252:126)
                                     Button {
-                                        
+                                        if user.money >= 2000 {
+                                            user.minusUserMoney(for: 2000)
+                                            let item = "hero3"
+                                            if !viewModel.boughtItems.contains(item) {
+                                                viewModel.boughtItems.append(item)
+                                            }
+                                        }
                                     } label: {
                                         ZStack {
                                             Image(.deskBgCTD)
                                                 .resizable()
                                                 .scaledToFit()
                                                 .frame(height: CTDDeviceManager.shared.deviceType == .pad ? 100:50)
-                                            HStack {
+                                            HStack(spacing: 0) {
                                                 Image(.coinIconCTD)
                                                     .resizable()
                                                     .scaledToFit()
                                                     .frame(height: CTDDeviceManager.shared.deviceType == .pad ? 46:28)
+                                                
+                                                Text("2000")
+                                                    .font(.system(size: 20, weight: .black))
+                                                    .foregroundStyle(.white)
+                                                    .frame(width: CTDDeviceManager.shared.deviceType == .pad ? 120:60)
                                             }
                                         }
                                     }
@@ -150,7 +184,9 @@ struct ShopViewCTD: View {
                     }
                     
                     Spacer()
-                }
+                    
+                    MoneyViewCTD()
+                }.padding()
                 Spacer()
                 
                 
@@ -189,7 +225,10 @@ struct ShopViewCTD: View {
             .frame(height: CTDDeviceManager.shared.deviceType == .pad ? 240:120)
             
             Button {
-                viewModel.buyItem(for: item)
+                if user.money >= item.cost {
+                    user.minusUserMoney(for: item.cost)
+                    viewModel.buyItem(for: item)
+                }
             } label: {
                 ZStack {
                     Image(.deskBgCTD)

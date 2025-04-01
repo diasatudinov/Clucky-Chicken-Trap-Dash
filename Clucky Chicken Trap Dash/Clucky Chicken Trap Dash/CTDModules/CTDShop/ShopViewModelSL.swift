@@ -18,17 +18,21 @@ class ShopViewModelCTD: ObservableObject {
         Item(name: "item5CTD", level: 1, maxLevel: 3, effect: 5, cost: 300, bought: false),
         Item(name: "item6CTD", level: 1, maxLevel: 1, effect: 5, cost: 2000, bought: false),
         
-    ]
-    
-    @Published var boughtItems: [Item] = [
-        
-    ]
-    
-    @Published var currentTeamItem: Item? {
+    ] {
         didSet {
             saveTeam()
         }
     }
+    
+    @Published var boughtItems: [String] = [
+        "hero1",
+    ] {
+        didSet {
+            saveBoughtItem()
+        }
+    }
+    
+    @AppStorage("currentTeamItem") var currentTeamItem: String = "hero1"
     
     init() {
         loadTeam()
@@ -131,19 +135,17 @@ class ShopViewModelCTD: ObservableObject {
     }
     
     func saveTeam() {
-        if let currentItem = currentTeamItem {
-            if let encodedData = try? JSONEncoder().encode(currentItem) {
-                UserDefaults.standard.set(encodedData, forKey: userDefaultsTeamKey)
-            }
+        if let encodedData = try? JSONEncoder().encode(shopTeamItems) {
+            UserDefaults.standard.set(encodedData, forKey: userDefaultsTeamKey)
         }
+        
     }
     
     func loadTeam() {
         if let savedData = UserDefaults.standard.data(forKey: userDefaultsTeamKey),
-           let loadedItem = try? JSONDecoder().decode(Item.self, from: savedData) {
-            currentTeamItem = loadedItem
+           let loadedItem = try? JSONDecoder().decode([Item].self, from: savedData) {
+            shopTeamItems = loadedItem
         } else {
-            currentTeamItem = shopTeamItems[0]
             print("No saved data found")
         }
     }
@@ -157,7 +159,7 @@ class ShopViewModelCTD: ObservableObject {
     
     func loadBoughtItem() {
         if let savedData = UserDefaults.standard.data(forKey: userDefaultsBoughtKey),
-           let loadedItem = try? JSONDecoder().decode([Item].self, from: savedData) {
+           let loadedItem = try? JSONDecoder().decode([String].self, from: savedData) {
             boughtItems = loadedItem
         } else {
             print("No saved data found")
