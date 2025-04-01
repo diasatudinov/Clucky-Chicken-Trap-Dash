@@ -96,7 +96,7 @@ struct MenuViewSL: View {
 //                }
 //            }
             .fullScreenCover(isPresented: $showGame) {
-                PickChickenViewCTD()
+                PickChickenViewCTD(viewModel: shopVM)
             }
             .fullScreenCover(isPresented: $showShop) {
                 ShopViewCTD(viewModel: shopVM)
