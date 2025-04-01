@@ -9,7 +9,8 @@ import SwiftUI
 
 struct PickChickenViewCTD: View {
     @Environment(\.presentationMode) var presentationMode
-    
+    @ObservedObject var viewModel: ShopViewModelCTD
+    @State private var showGame = false
     var body: some View {
         ZStack {
             VStack {
@@ -26,12 +27,14 @@ struct PickChickenViewCTD: View {
                             .scaledToFit()
                             .frame(height: CTDDeviceManager.shared.deviceType == .pad ? 252:126)
                         Button {
-                            
+                            viewModel.currentTeamItem = "hero1"
+                            showGame = true
                         } label: {
                             Image(.goBgCTD)
                                 .resizable()
                                 .scaledToFit()
                                 .frame(height: CTDDeviceManager.shared.deviceType == .pad ? 100:50)
+                                .opacity(viewModel.boughtItems.contains("hero1") ? 1 : 0.5)
                         }
                     }
                     
@@ -42,12 +45,17 @@ struct PickChickenViewCTD: View {
                             .scaledToFit()
                             .frame(height: CTDDeviceManager.shared.deviceType == .pad ? 252:126)
                         Button {
-                            
+                            if viewModel.boughtItems.contains("hero2") {
+                                viewModel.currentTeamItem = "hero2"
+                                showGame = true
+                                
+                            }
                         } label: {
                             Image(.goBgCTD)
                                 .resizable()
                                 .scaledToFit()
                                 .frame(height: CTDDeviceManager.shared.deviceType == .pad ? 100:50)
+                                .opacity(viewModel.boughtItems.contains("hero2") ? 1 : 0.5)
                         }
                     }
                     
@@ -58,12 +66,17 @@ struct PickChickenViewCTD: View {
                             .scaledToFit()
                             .frame(height: CTDDeviceManager.shared.deviceType == .pad ? 252:126)
                         Button {
+                            if viewModel.boughtItems.contains("hero3") {
+                                viewModel.currentTeamItem = "hero3"
+                                showGame = true
+                            }
                             
                         } label: {
                             Image(.goBgCTD)
                                 .resizable()
                                 .scaledToFit()
                                 .frame(height: CTDDeviceManager.shared.deviceType == .pad ? 100:50)
+                                .opacity(viewModel.boughtItems.contains("hero3") ? 1 : 0.5)
                         }
                     }
                     
@@ -97,9 +110,12 @@ struct PickChickenViewCTD: View {
             }
             
         )
+        .fullScreenCover(isPresented: $showGame) {
+            ContentView()
+        }
     }
 }
 
 #Preview {
-    PickChickenViewCTD()
+    PickChickenViewCTD(viewModel: ShopViewModelCTD())
 }

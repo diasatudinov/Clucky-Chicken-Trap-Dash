@@ -4,6 +4,8 @@ import SpriteKit
 // MARK: - Основной класс игровой сцены
 class BattleScene: SKScene {
     var viewModel: GameViewModel?
+    var shopViewModel: ShopViewModelCTD?
+
     // Фоновое изображение
     var bg1: SKSpriteNode!
     var bg2: SKSpriteNode!
@@ -14,7 +16,7 @@ class BattleScene: SKScene {
     var man: SKSpriteNode!
     
     // Здоровье героя
-    let heroMaxHealth: Int = 100
+    var heroMaxHealth: Int = 100
     var heroHealth: Int = 100 {
         didSet { updateHealthBars() }
     }
@@ -49,8 +51,26 @@ class BattleScene: SKScene {
     var transitionDistanceRemaining: CGFloat = 0
     var transitionSpeed: CGFloat = 0  // пикселей в секунду
     var lastUpdateTime: TimeInterval = 0
-
+    
     var currentEnemyType: String?
+    
+    var upgradedAutoDamage: Int {
+        guard let damageUpgrade = shopViewModel?.shopTeamItems[0].effect else { return 0 }
+            
+        return damageUpgrade
+    }
+    
+    var upgradedClickDamage: Int {
+        guard let damageUpgrade = shopViewModel?.shopTeamItems[1].effect else { return 0 }
+            
+        return damageUpgrade
+    }
+    
+    var upgradedHeroMaxHealth: Int {
+        guard let damageUpgrade = shopViewModel?.shopTeamItems[2].effect else { return 100 }
+            
+        return damageUpgrade
+        }
     
     override func didMove(to view: SKView) {
         backgroundColor = .systemMint
@@ -73,11 +93,11 @@ class BattleScene: SKScene {
         bg2.size = self.size
         addChild(bg2)
         
-
         
         
+        guard let shopViewModel = shopViewModel else { return }
         // Настройка героя
-        hero = SKSpriteNode(imageNamed: "heroRun2")
+        hero = SKSpriteNode(imageNamed: "\(shopViewModel.currentTeamItem)Run2")
         hero.position = CGPoint(x: size.width * 0.25, y: size.height/2.9)
         hero.size = CGSize(width: 142, height: 160)
         addChild(hero)
@@ -91,6 +111,8 @@ class BattleScene: SKScene {
         // В начале битвы герой стоит — поэтому "man" остается статичным
         stopManRunningAnimation()
         
+        heroHealth = upgradedHeroMaxHealth
+        heroMaxHealth = upgradedHeroMaxHealth
         // Спавн первого врага
         spawnEnemy()
         
@@ -115,22 +137,23 @@ class BattleScene: SKScene {
         let runLoop = SKAction.repeatForever(runAnimation)
         man.run(runLoop, withKey: "manRunning")
     }
-
+    
     func stopManRunningAnimation() {
         man.removeAction(forKey: "manRunning")
         // Можно установить статичное изображение, если нужно
         man.texture = SKTexture(imageNamed: "manRun1")
     }
-
+    
     func startBattleIdleAnimation() {
+        guard let shopViewModel = shopViewModel else { return }
         // Можно использовать статичное изображение
-        hero.texture = SKTexture(imageNamed: "heroRun2")
+        hero.texture = SKTexture(imageNamed: "\(shopViewModel.currentTeamItem)Run2")
         
-            // Останавливаем любые анимации бега
-            hero.removeAction(forKey: "transitionRunning")
-            
-            // Останавливаем анимацию для "man"
-            stopManRunningAnimation()
+        // Останавливаем любые анимации бега
+        hero.removeAction(forKey: "transitionRunning")
+        
+        // Останавливаем анимацию для "man"
+        stopManRunningAnimation()
         
     }
     
@@ -196,7 +219,7 @@ class BattleScene: SKScene {
         enemy?.removeFromParent()
         enemyHealthBar?.removeFromParent()
         
-        heroHealth = 100
+        heroHealth = upgradedHeroMaxHealth
         let enemyImageName = "\(getEnemyImageName())Hit1"
         enemy = SKSpriteNode(imageNamed: enemyImageName)
         // Враг появляется на позиции боя (например, 75% ширины экрана)
@@ -207,10 +230,10 @@ class BattleScene: SKScene {
         // Обновляем характеристики врага (увеличиваются с каждым новым)
         enemyMaxHealth = 100 + currentEnemyIndex * 20
         enemyHealth = enemyMaxHealth
-       // setupEnemyHealthBar()
+        // setupEnemyHealthBar()
         
         print("Появился враг \(currentEnemyIndex + 1) с изображением \(enemyImageName) и здоровьем \(enemyHealth)")
-
+        
     }
     
     // MARK: Цикл боя (автоатака)
@@ -249,15 +272,14 @@ class BattleScene: SKScene {
         // Рассчитываем урон – базовый урон растёт с каждым новым врагом
         let damage = 10 + currentEnemyIndex * 2
         enemyHealth -= damage
-        heroHealth -= damage
+        heroHealth -= upgradedAutoDamage
         
-        showDamage(on: enemy, damage: damage)
+        showDamage(on: enemy, damage: upgradedAutoDamage)
         showDamage(on: hero, damage: damage)
         
-        viewModel?.totalDamageDealt += damage
+        viewModel?.totalDamageDealt += upgradedAutoDamage
         viewModel?.accumulatedDamageTaken += damage
-        
-        print("Герой и враг обменялись ударами, нанесено \(damage) урона.")
+    
         
         checkBattleStatus()
     }
@@ -317,22 +339,24 @@ class BattleScene: SKScene {
             // Спавним нового врага сразу во время перехода
             self.spawnEnemyDuringTransition(duration: transitionDuration)
         }
-        
-        viewModel?.totalEnemiesKilled += 1
+        if !isTransitioning {
+            viewModel?.totalEnemiesKilled += 1
+        }
         let totalKilled = currentEnemyIndex + 1
-            // Обновляем пройденный путь как процент
-            viewModel?.distanceTraveled = CGFloat(Double(totalKilled) / Double(totalEnemies) * 100)
+        // Обновляем пройденный путь как процент
+        viewModel?.distanceTraveled = CGFloat(Double(totalKilled) / Double(totalEnemies) * 100)
         
         let transitionDistance = size.width * 0.3
-//        viewModel?.distanceTraveled += transitionDistance
+        //        viewModel?.distanceTraveled += transitionDistance
     }
     
     func startTransitionRunningAnimation() {
+        guard let shopViewModel = shopViewModel else { return }
         let runTextures = [
-            SKTexture(imageNamed: "heroRun1"),
-            SKTexture(imageNamed: "heroRun2"),
-            SKTexture(imageNamed: "heroRun3"),
-            SKTexture(imageNamed: "heroRun4")
+            SKTexture(imageNamed: "\(shopViewModel.currentTeamItem)Run1"),
+            SKTexture(imageNamed: "\(shopViewModel.currentTeamItem)Run2"),
+            SKTexture(imageNamed: "\(shopViewModel.currentTeamItem)Run3"),
+            SKTexture(imageNamed: "\(shopViewModel.currentTeamItem)Run4")
         ]
         let runAnimation = SKAction.animate(with: runTextures, timePerFrame: 0.1)
         let runLoop = SKAction.repeatForever(runAnimation)
@@ -354,7 +378,7 @@ class BattleScene: SKScene {
         
         enemyMaxHealth = 100 + currentEnemyIndex * 20
         enemyHealth = enemyMaxHealth
-       //setupEnemyHealthBar()
+        //setupEnemyHealthBar()
         
         print("Появляется враг \(currentEnemyIndex + 2) с изображением \(enemyImageName) и здоровьем \(enemyHealth)")
         
@@ -368,9 +392,9 @@ class BattleScene: SKScene {
         endGame(victory: false)
     }
     
-//    func isBossRound() -> Bool {
-//        return currentEnemyIndex == totalEnemies - 1
-//    }
+    //    func isBossRound() -> Bool {
+    //        return currentEnemyIndex == totalEnemies - 1
+    //    }
     
     func getEnemyHitAnimationTextures() -> [SKTexture] {
         guard let enemyType = currentEnemyType else {
@@ -387,7 +411,7 @@ class BattleScene: SKScene {
         ]
         return hitImageNames.map { SKTexture(imageNamed: $0) }
     }
-
+    
     // Возвращает имя картинки для врага в зависимости от того, босс это или обычный враг.
     func getEnemyImageName() -> String {
         if isBossRound {
@@ -430,57 +454,58 @@ struct ContentView: View {
     @State private var scene = BattleScene(size: CGSize(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height))
     
     var body: some View {
-            ZStack {
-                // Отображаем SKScene
-                SpriteView(scene: scene)
-                    .ignoresSafeArea()
-                    .onAppear {
-                        // Передаем модель в сцену
-                        scene.viewModel = gameViewModel
-                    }
-                
-                // SwiftUI-оверлей с HP баром
-                VStack {
-                    HStack {
-                        HPBarView(title: "Hero HP",
-                                  current: gameViewModel.heroHealth,
-                                  max: gameViewModel.heroMaxHealth)
-                            .padding()
-                        Spacer()
-                        HPBarView(title: "Enemy HP",
-                                  current: gameViewModel.enemyHealth,
-                                  max: gameViewModel.enemyMaxHealth)
-                            .padding()
-                    }
-                    
-                   ProgressView("Distance", value: Float(gameViewModel.distanceTraveled), total: 100)
-                                 //      .padding()
-                    
+        ZStack {
+            // Отображаем SKScene
+            SpriteView(scene: scene)
+                .ignoresSafeArea()
+                .onAppear {
+                    // Передаем модель в сцену
+                    scene.viewModel = gameViewModel
+                    scene.shopViewModel = shopVM
+                }
+            
+            // SwiftUI-оверлей с HP баром
+            VStack {
+                HStack {
+                    HPBarView(title: "Hero HP",
+                              current: gameViewModel.heroHealth,
+                              max: gameViewModel.heroMaxHealth)
+                    .padding()
                     Spacer()
-                    
-                    HStack {
-                        Button(action: {
-                            scene.applyExtraDamage()
-                        }) {
-                            Text("Extra Attack")
-                                .padding()
-                                .background(Color.red)
-                                .foregroundColor(.white)
-                                .cornerRadius(10)
-                        }
-                    }
-                    .padding(.bottom, 50)
+                    HPBarView(title: "Enemy HP",
+                              current: gameViewModel.enemyHealth,
+                              max: gameViewModel.enemyMaxHealth)
+                    .padding()
                 }
                 
-                if gameViewModel.gameEnded {
-                    GameSummaryView(viewModel: gameViewModel)
-                        .frame(width: 300, height: 300)
-                        .background(Color.white.opacity(0.9))
-                        .cornerRadius(20)
+                ProgressView("Distance", value: Float(gameViewModel.distanceTraveled), total: 100)
+                //      .padding()
+                
+                Spacer()
+                
+                HStack {
+                    Button(action: {
+                        scene.applyExtraDamage()
+                    }) {
+                        Text("Extra Attack")
+                            .padding()
+                            .background(Color.red)
+                            .foregroundColor(.white)
+                            .cornerRadius(10)
+                    }
                 }
+                .padding(.bottom, 50)
+            }
+            
+            if gameViewModel.gameEnded {
+                GameSummaryView(viewModel: gameViewModel)
+                    .frame(width: 300, height: 300)
+                    .background(Color.white.opacity(0.9))
+                    .cornerRadius(20)
             }
         }
     }
+}
 
 struct HPBarView: View {
     var title: String
@@ -533,8 +558,9 @@ extension BattleScene {
     // Метод для ручной атаки (если требуется)
     func applyExtraDamage() {
         if !isTransitioning {
-            let extraDamage = 15
+            let extraDamage = upgradedClickDamage
             enemyHealth -= extraDamage
+            viewModel?.totalDamageDealt += extraDamage
             showDamage(on: enemy, damage: extraDamage)
             print("Ручная атака: нанесено дополнительно \(extraDamage) урона")
             checkBattleStatus()
@@ -551,16 +577,16 @@ class GameViewModel: ObservableObject {
     @Published var enemyMaxHealth: Int = 100
     
     // Статистика игры
-        @Published var distanceTraveled: CGFloat = 0
-        @Published var totalEnemiesKilled: Int = 0
-        @Published var totalTime: TimeInterval = 0
-        @Published var healthLost: Int = 0
-        @Published var totalDamageDealt: Int = 0
-        @Published var accumulatedDamageTaken: Int = 0
-        @Published var pepperUsage: Int = 0
-        
-        // Флаг завершения игры
-        @Published var gameEnded: Bool = false
+    @Published var distanceTraveled: CGFloat = 0
+    @Published var totalEnemiesKilled: Int = 0
+    @Published var totalTime: TimeInterval = 0
+    @Published var healthLost: Int = 0
+    @Published var totalDamageDealt: Int = 0
+    @Published var accumulatedDamageTaken: Int = 0
+    @Published var pepperUsage: Int = 0
+    
+    // Флаг завершения игры
+    @Published var gameEnded: Bool = false
 }
 
 #Preview {
