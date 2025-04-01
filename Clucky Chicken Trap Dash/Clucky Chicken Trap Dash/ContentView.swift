@@ -445,6 +445,46 @@ class BattleScene: SKScene {
         // Устанавливаем флаг завершения игры
         viewModel?.gameEnded = true
     }
+    
+    func restartGame() {
+        // Remove all actions and reset transitions
+        removeAllActions()
+        isTransitioning = false
+        transitionDistanceRemaining = 0
+        transitionSpeed = 0
+        
+        // Reset enemy index and hero's health
+        currentEnemyIndex = 0
+        heroHealth = upgradedHeroMaxHealth
+        
+        // Reset background positions (assuming bg1 is at origin and bg2 is placed to the right of bg1)
+        bg1.position = .zero
+        bg2.position = CGPoint(x: bg1.size.width - 1, y: 0)
+        
+        // Remove current enemy and its health bar from the scene
+        enemy?.removeFromParent()
+        enemyHealthBar?.removeFromParent()
+        
+        // Reset hero animations: stop any running actions and start the idle animation
+        hero.removeAllActions()
+        startBattleIdleAnimation()
+        
+        // Reset start time for game duration calculations
+        startTime = CACurrentMediaTime()
+        
+        // Reset any game statistics in your view model, if applicable
+        viewModel?.totalEnemiesKilled = 0
+        viewModel?.distanceTraveled = 0
+        viewModel?.accumulatedDamageTaken = 0
+        viewModel?.totalDamageDealt = 0
+        viewModel?.gameEnded = false
+        
+        // Spawn the first enemy and restart the battle cycle
+        spawnEnemy()
+        startBattleCycle()
+        
+        print("Game restarted.")
+    }
 }
 
 // MARK: - SwiftUI интерфейс для отображения игры
@@ -493,6 +533,17 @@ struct ContentView: View {
                             .foregroundColor(.white)
                             .cornerRadius(10)
                     }
+                    
+                    Button(action: {
+                        scene.restartGame()
+                    }) {
+                        Text("Res")
+                            .padding()
+                            .background(Color.red)
+                            .foregroundColor(.white)
+                            .cornerRadius(10)
+                    }
+                    
                 }
                 .padding(.bottom, 50)
             }
