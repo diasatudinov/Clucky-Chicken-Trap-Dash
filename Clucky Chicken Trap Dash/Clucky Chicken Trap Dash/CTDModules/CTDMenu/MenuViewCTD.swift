@@ -83,18 +83,18 @@ struct MenuViewCTD: View {
                 }
                 
             )
-//            .onAppear {
-//                if settingsVM.musicEnabled {
-//                    MusicManagerSL.shared.playBackgroundMusic()
-//                }
-//            }
-//            .onChange(of: settingsVM.musicEnabled) { enabled in
-//                if enabled {
-//                    MusicManagerSL.shared.playBackgroundMusic()
-//                } else {
-//                    MusicManagerSL.shared.stopBackgroundMusic()
-//                }
-//            }
+            .onAppear {
+                if settingsVM.musicEnabled {
+                    MusicManagerCTD.shared.playBackgroundMusic()
+                }
+            }
+            .onChange(of: settingsVM.musicEnabled) { enabled in
+                if enabled {
+                    MusicManagerCTD.shared.playBackgroundMusic()
+                } else {
+                    MusicManagerCTD.shared.stopBackgroundMusic()
+                }
+            }
             .fullScreenCover(isPresented: $showGame) {
                 PickChickenViewCTD(viewModel: shopVM, statVM: statVM)
             }

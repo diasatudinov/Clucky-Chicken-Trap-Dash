@@ -13,9 +13,9 @@ struct RootViewSL: View {
             } else {
                 VStack {
                     if isLoading {
-                        LoadingViewSL()
+                        SplashScreenCTD()
                     } else {
-                        MenuViewSL()
+                        MenuViewCTD()
                             .onAppear {
                                 AppDelegate.orientationLock = .landscape
                                 setOrientation(.landscapeRight)

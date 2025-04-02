@@ -3,6 +3,7 @@ import SwiftUI
 
 struct MoneyViewCTD: View {
     @StateObject var user = CTDUser.shared
+    @StateObject var statVM = StatisticsViewModelCTD()
     var body: some View {
         ZStack {
             Image(.coinsBg)
@@ -22,6 +23,13 @@ struct MoneyViewCTD: View {
                     .frame(height: CTDDeviceManager.shared.deviceType == .pad ? 74:37)
             }
         }.frame(height: CTDDeviceManager.shared.deviceType == .pad ? 100:50)
+            .onChange(of: user.money) { value in
+                if user.oldMoney > value {
+                    statVM.goldSpent += abs(user.oldMoney - value)
+                } else {
+                    statVM.goldAccumulated += abs(user.oldMoney - value)
+                }
+            }
     }
 }
 

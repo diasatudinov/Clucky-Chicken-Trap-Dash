@@ -1,10 +1,3 @@
-//
-//  SplashScreenCTD.swift
-//  Clucky Chicken Trap Dash
-//
-//  Created by Dias Atudinov on 31.03.2025.
-//
-
 import SwiftUI
 
 struct SplashScreenCTD: View {
