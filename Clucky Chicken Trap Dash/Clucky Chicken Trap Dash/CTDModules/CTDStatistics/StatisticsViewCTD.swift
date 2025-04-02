@@ -1,15 +1,8 @@
-//
-//  StatisticsViewCTD.swift
-//  Clucky Chicken Trap Dash
-//
-//  Created by Dias Atudinov on 28.03.2025.
-//
-
 import SwiftUI
 
 struct StatisticsViewCTD: View {
     @Environment(\.presentationMode) var presentationMode
-
+    @ObservedObject var statVM: StatisticsViewModelCTD
     var body: some View {
         ZStack {
             ZStack {
@@ -18,20 +11,20 @@ struct StatisticsViewCTD: View {
                     .scaledToFit()
                 VStack {
                     Spacer()
-                    HStack(spacing: 50) {
+                    HStack(spacing: CTDDeviceManager.shared.deviceType == .pad ? 100:50) {
                         
                         VStack(alignment: .leading) {
                             HStack {
                                 Image(.icon1)
                                     .resizable()
                                     .scaledToFit()
-                                    .frame(height: 35)
+                                    .frame(height: CTDDeviceManager.shared.deviceType == .pad ? 70:35)
                                 Text("Total monsters killed:")
-                                    .font(.system(size: 21, weight: .black))
+                                    .font(.system(size: CTDDeviceManager.shared.deviceType == .pad ? 42:21, weight: .black))
                                     .foregroundStyle(.white)
                                 
-                                Text("0")
-                                    .font(.system(size: 21, weight: .black))
+                                Text("\(statVM.monstersKilled)")
+                                    .font(.system(size: CTDDeviceManager.shared.deviceType == .pad ? 42:21, weight: .black))
                                     .foregroundStyle(.white)
                             }
                             
@@ -39,13 +32,13 @@ struct StatisticsViewCTD: View {
                                 Image(.icon3)
                                     .resizable()
                                     .scaledToFit()
-                                    .frame(height: 35)
+                                    .frame(height: CTDDeviceManager.shared.deviceType == .pad ? 70:35)
                                 Text("Defeated bosses: ")
-                                    .font(.system(size: 21, weight: .black))
+                                    .font(.system(size: CTDDeviceManager.shared.deviceType == .pad ? 42:21, weight: .black))
                                     .foregroundStyle(.white)
                                 
-                                Text("0")
-                                    .font(.system(size: 21, weight: .black))
+                                Text("\(statVM.defeatedBosses)")
+                                    .font(.system(size: CTDDeviceManager.shared.deviceType == .pad ? 42:21, weight: .black))
                                     .foregroundStyle(.white)
                             }
                             
@@ -53,13 +46,13 @@ struct StatisticsViewCTD: View {
                                 Image(.icon5)
                                     .resizable()
                                     .scaledToFit()
-                                    .frame(height: 35)
+                                    .frame(height: CTDDeviceManager.shared.deviceType == .pad ? 70:35)
                                 Text("Maximum hero level: ")
-                                    .font(.system(size: 21, weight: .black))
+                                    .font(.system(size: CTDDeviceManager.shared.deviceType == .pad ? 42:21, weight: .black))
                                     .foregroundStyle(.white)
                                 
-                                Text("0")
-                                    .font(.system(size: 21, weight: .black))
+                                Text("\(statVM.maxHeroLevel)")
+                                    .font(.system(size: CTDDeviceManager.shared.deviceType == .pad ? 42:21, weight: .black))
                                     .foregroundStyle(.white)
                             }
                         }
@@ -70,13 +63,13 @@ struct StatisticsViewCTD: View {
                                 Image(.icon2)
                                     .resizable()
                                     .scaledToFit()
-                                    .frame(height: 35)
+                                    .frame(height: CTDDeviceManager.shared.deviceType == .pad ? 70:35)
                                 Text("Total gold accumulated:")
-                                    .font(.system(size: 21, weight: .black))
+                                    .font(.system(size: CTDDeviceManager.shared.deviceType == .pad ? 42:21, weight: .black))
                                     .foregroundStyle(.white)
                                 
-                                Text("0")
-                                    .font(.system(size: 21, weight: .black))
+                                Text("\(statVM.goldAccumulated)")
+                                    .font(.system(size: CTDDeviceManager.shared.deviceType == .pad ? 42:21, weight: .black))
                                     .foregroundStyle(.white)
                                 
                             }
@@ -87,13 +80,13 @@ struct StatisticsViewCTD: View {
                                 Image(.icon4)
                                     .resizable()
                                     .scaledToFit()
-                                    .frame(height: 35)
+                                    .frame(height: CTDDeviceManager.shared.deviceType == .pad ? 70:35)
                                 Text("Total gold spent: ")
-                                    .font(.system(size: 21, weight: .black))
+                                    .font(.system(size: CTDDeviceManager.shared.deviceType == .pad ? 42:21, weight: .black))
                                     .foregroundStyle(.white)
                                 
-                                Text("0")
-                                    .font(.system(size: 21, weight: .black))
+                                Text("\(statVM.goldSpent)")
+                                    .font(.system(size: CTDDeviceManager.shared.deviceType == .pad ? 42:21, weight: .black))
                                     .foregroundStyle(.white)
                                 
                             }
@@ -104,13 +97,13 @@ struct StatisticsViewCTD: View {
                                 Image(.icon6)
                                     .resizable()
                                     .scaledToFit()
-                                    .frame(height: 35)
+                                    .frame(height: CTDDeviceManager.shared.deviceType == .pad ? 70:35)
                                 Text("Matches played: ")
-                                    .font(.system(size: 21, weight: .black))
+                                    .font(.system(size: CTDDeviceManager.shared.deviceType == .pad ? 42:21, weight: .black))
                                     .foregroundStyle(.white)
                                 
-                                Text("0")
-                                    .font(.system(size: 21, weight: .black))
+                                Text("\(statVM.matchesPlayed)")
+                                    .font(.system(size: CTDDeviceManager.shared.deviceType == .pad ? 42:21, weight: .black))
                                     .foregroundStyle(.white)
                             }
                         }
@@ -120,16 +113,16 @@ struct StatisticsViewCTD: View {
                         Image(.icon7)
                             .resizable()
                             .scaledToFit()
-                            .frame(height: 35)
+                            .frame(height: CTDDeviceManager.shared.deviceType == .pad ? 70:35)
                         Text("Total time in the game:")
-                            .font(.system(size: 21, weight: .black))
+                            .font(.system(size: CTDDeviceManager.shared.deviceType == .pad ? 42:21, weight: .black))
                             .foregroundStyle(.white)
                         
-                        Text("0")
-                            .font(.system(size: 21, weight: .black))
+                        Text("\(Int(statVM.totalTime)) seconds")
+                            .font(.system(size: CTDDeviceManager.shared.deviceType == .pad ? 42:21, weight: .black))
                             .foregroundStyle(.white)
                     }
-                }.padding(.bottom, 50)
+                }.padding(.bottom, CTDDeviceManager.shared.deviceType == .pad ? 140:50)
             }.frame(width: UIScreen.main.bounds.width)
             
             VStack(spacing: 0) {
@@ -165,5 +158,5 @@ struct StatisticsViewCTD: View {
 }
 
 #Preview {
-    StatisticsViewCTD()
+    StatisticsViewCTD(statVM: StatisticsViewModelCTD())
 }

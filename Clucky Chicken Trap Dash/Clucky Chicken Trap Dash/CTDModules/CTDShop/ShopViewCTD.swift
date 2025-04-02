@@ -1,10 +1,3 @@
-//
-//  ShopViewCTD.swift
-//  Clucky Chicken Trap Dash
-//
-//  Created by Dias Atudinov on 28.03.2025.
-//
-
 import SwiftUI
 
 struct ShopViewCTD: View {
@@ -26,16 +19,16 @@ struct ShopViewCTD: View {
                         .scaledToFit()
                     VStack {
                         Text("Shop")
-                            .font(.system(size: 42, weight: .black))
+                            .font(.system(size: CTDDeviceManager.shared.deviceType == .pad ? 84:42, weight: .black))
                             .foregroundStyle(.white)
-                            .padding(.top, 20)
+                            .padding(.top, CTDDeviceManager.shared.deviceType == .pad ? 40:20)
                         
-                        HStack(spacing: 8) {
+                        HStack(spacing: CTDDeviceManager.shared.deviceType == .pad ? 16:8) {
                             
                             Image(shopType == .skills ? .skillsIconCTD:.skillsOffIconCTD)
                                 .resizable()
                                 .scaledToFit()
-                                .frame(height: 50)
+                                .frame(height: CTDDeviceManager.shared.deviceType == .pad ? 100:50)
                                 .onTapGesture {
                                     withAnimation {
                                         shopType = .skills
@@ -45,7 +38,7 @@ struct ShopViewCTD: View {
                             Image(shopType == .skins ? .skinsIconCTD : .skinsOffIconCTD)
                                 .resizable()
                                 .scaledToFit()
-                                .frame(height: 50)
+                                .frame(height: CTDDeviceManager.shared.deviceType == .pad ? 100:50)
                                 .onTapGesture {
                                     withAnimation {
                                         shopType = .skins
@@ -216,9 +209,9 @@ struct ShopViewCTD: View {
                     VStack {
                         Spacer()
                         Text("\(item.level)")
-                            .font(.system(size: 19, weight: .black))
+                            .font(.system(size: CTDDeviceManager.shared.deviceType == .pad ? 38:19, weight: .black))
                             .foregroundStyle(.black)
-                            .offset(x: 28, y: -11)
+                            .offset(x: CTDDeviceManager.shared.deviceType == .pad ? 35:28, y: CTDDeviceManager.shared.deviceType == .pad ? -42:-11)
                     }
                 }
             }
@@ -241,7 +234,7 @@ struct ShopViewCTD: View {
                             .scaledToFit()
                             .frame(height: CTDDeviceManager.shared.deviceType == .pad ? 46:28)
                         Text("\(item.cost)")
-                            .font(.system(size: 20, weight: .black))
+                            .font(.system(size: CTDDeviceManager.shared.deviceType == .pad ? 40:20, weight: .black))
                             .foregroundStyle(.white)
                     }
                 }

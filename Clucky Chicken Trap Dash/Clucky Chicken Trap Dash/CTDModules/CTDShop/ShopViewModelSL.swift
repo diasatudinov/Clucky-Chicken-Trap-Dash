@@ -1,11 +1,3 @@
-//
-//  ShopViewModelSL.swift
-//  Clucky Chicken Trap Dash
-//
-//  Created by Dias Atudinov on 01.04.2025.
-//
-
-
 import SwiftUI
 
 class ShopViewModelCTD: ObservableObject {

@@ -4,7 +4,7 @@ struct SettingsViewCTD: View {
     @Environment(\.presentationMode) var presentationMode
     
     @ObservedObject var settings: SettingsViewModelCTD
-    
+    @StateObject var statVM = StatisticsViewModelCTD()
     var body: some View {
         ZStack {
             
@@ -29,7 +29,7 @@ struct SettingsViewCTD: View {
                             HStack(spacing: CTDDeviceManager.shared.deviceType == .pad ? 140:70) {
                                 
                                 Button {
-                                    settings.soundEnabled = false
+                                    settings.musicEnabled = false
                                 } label: {
                                     Image(.offCTD)
                                         .resizable()
@@ -37,7 +37,7 @@ struct SettingsViewCTD: View {
                                         .frame(height: CTDDeviceManager.shared.deviceType == .pad ? 110:55)
                                 }
                                 Button {
-                                    settings.soundEnabled = true
+                                    settings.musicEnabled = true
                                 } label: {
                                     Image(.onCTD)
                                         .resizable()
@@ -102,6 +102,15 @@ struct SettingsViewCTD: View {
                 }
                 Spacer()
                 Button {
+                    
+                    statVM.monstersKilled = 0
+                    statVM.defeatedBosses = 0
+                    statVM.maxHeroLevel = 0
+                    statVM.goldAccumulated = 0
+                    statVM.goldSpent = 0
+                    statVM.matchesPlayed = 0
+                    statVM.totalTime = 0
+                    
                     
                 } label: {
                     Image(.resetIconCTD)
