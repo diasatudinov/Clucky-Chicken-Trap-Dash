@@ -1,15 +1,9 @@
-//
-//  PickChickenViewCTD.swift
-//  Clucky Chicken Trap Dash
-//
-//  Created by Dias Atudinov on 28.03.2025.
-//
-
 import SwiftUI
 
 struct PickChickenViewCTD: View {
     @Environment(\.presentationMode) var presentationMode
     @ObservedObject var viewModel: ShopViewModelCTD
+    @ObservedObject var statVM: StatisticsViewModelCTD
     @State private var showGame = false
     var body: some View {
         ZStack {
@@ -27,7 +21,9 @@ struct PickChickenViewCTD: View {
                             .scaledToFit()
                             .frame(height: CTDDeviceManager.shared.deviceType == .pad ? 252:126)
                         Button {
+                            
                             viewModel.currentTeamItem = "hero1"
+                            
                             showGame = true
                         } label: {
                             Image(.goBgCTD)
@@ -111,11 +107,11 @@ struct PickChickenViewCTD: View {
             
         )
         .fullScreenCover(isPresented: $showGame) {
-            ContentView()
+            GameViewCTD(statVM: statVM)
         }
     }
 }
 
 #Preview {
-    PickChickenViewCTD(viewModel: ShopViewModelCTD())
+    PickChickenViewCTD(viewModel: ShopViewModelCTD(), statVM: StatisticsViewModelCTD())
 }
