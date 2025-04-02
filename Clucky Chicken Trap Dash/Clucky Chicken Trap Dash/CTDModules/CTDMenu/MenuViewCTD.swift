@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct MenuViewSL: View {
+struct MenuViewCTD: View {
     @State private var showGame = false
     @State private var showShop = false
     @State private var showStatistics = false
@@ -8,7 +8,7 @@ struct MenuViewSL: View {
     
     @StateObject var shopVM = ShopViewModelCTD()
     @StateObject var settingsVM = SettingsViewModelCTD()
-//    @StateObject var achievementVM = AchievementsViewModel()
+    @StateObject var statVM = StatisticsViewModelCTD()
     var body: some View {
         
         GeometryReader { geometry in
@@ -96,13 +96,13 @@ struct MenuViewSL: View {
 //                }
 //            }
             .fullScreenCover(isPresented: $showGame) {
-                PickChickenViewCTD(viewModel: shopVM)
+                PickChickenViewCTD(viewModel: shopVM, statVM: statVM)
             }
             .fullScreenCover(isPresented: $showShop) {
                 ShopViewCTD(viewModel: shopVM)
             }
             .fullScreenCover(isPresented: $showStatistics) {
-                StatisticsViewCTD()
+                StatisticsViewCTD(statVM: statVM)
             }
             .fullScreenCover(isPresented: $showSettings) {
                 SettingsViewCTD(settings: settingsVM)
@@ -117,5 +117,5 @@ struct MenuViewSL: View {
 
 
 #Preview {
-    MenuViewSL()
+    MenuViewCTD()
 }
