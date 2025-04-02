@@ -98,13 +98,13 @@ class BattleScene: SKScene {
         // Настройка героя
         hero = SKSpriteNode(imageNamed: "\(shopViewModel.currentTeamItem)Run2")
         hero.position = CGPoint(x: size.width * 0.25, y: size.height/2.9)
-        hero.size = CGSize(width: 142, height: 160)
+        hero.size = CGSize(width: CTDDeviceManager.shared.deviceType == .pad ? 200:142, height: CTDDeviceManager.shared.deviceType == .pad ? 220:160)
         addChild(hero)
         
         // Создаем персонажа "man", который находится позади героя
         man = SKSpriteNode(imageNamed: "manRun1")
-        man.position = CGPoint(x: hero.position.x - 120, y: hero.position.y + 30) // смещён немного влево
-        man.size = CGSize(width: 90, height: 210)
+        man.position = CGPoint(x: hero.position.x - (CTDDeviceManager.shared.deviceType == .pad ? 200:120), y: hero.position.y + 30) // смещён немного влево
+        man.size = CGSize(width: CTDDeviceManager.shared.deviceType == .pad ? 180:90, height: CTDDeviceManager.shared.deviceType == .pad ? 420:210)
         man.zPosition = hero.zPosition - 1  // позади героя
         addChild(man)
         // В начале битвы герой стоит — поэтому "man" остается статичным
@@ -223,7 +223,7 @@ class BattleScene: SKScene {
         enemy = SKSpriteNode(imageNamed: enemyImageName)
         // Враг появляется на позиции боя (например, 75% ширины экрана)
         enemy.position = CGPoint(x: size.width * 0.75, y: size.height / 2.5)
-        enemy.size = CGSize(width: 142, height: 160)
+        enemy.size = CGSize(width: CTDDeviceManager.shared.deviceType == .pad ? 284:142, height: CTDDeviceManager.shared.deviceType == .pad ? 320:160)
         addChild(enemy)
         
         // Обновляем характеристики врага (увеличиваются с каждым новым)
@@ -372,7 +372,7 @@ class BattleScene: SKScene {
         enemy = SKSpriteNode(imageNamed: enemyImageName)
         // Враг появляется за правой границей экрана
         enemy.position = CGPoint(x: size.width + enemy.size.width / 2, y: size.height / 2.5)
-        enemy.size = CGSize(width: 142, height: 160)
+        enemy.size = CGSize(width: CTDDeviceManager.shared.deviceType == .pad ? 284:142, height: CTDDeviceManager.shared.deviceType == .pad ? 320:160)
         addChild(enemy)
         
         enemyMaxHealth = 100 + currentEnemyIndex * 20
@@ -443,6 +443,13 @@ class BattleScene: SKScene {
         
         // Устанавливаем флаг завершения игры
         viewModel?.gameEnded = true
+        viewModel?.gameWin = victory
+        
+        
+        if let viewModel = viewModel {
+            CTDUser.shared.updateUserMoney(for: viewModel.totalEnemiesKilled * 10)
+        }
+        
     }
     
     func restartGame() {
@@ -484,4 +491,23 @@ class BattleScene: SKScene {
         
         print("Game restarted.")
     }
+}
+
+extension BattleScene {
+    // Метод для ручной атаки (если требуется)
+    func applyExtraDamage() {
+        if !isTransitioning {
+            let extraDamage = upgradedClickDamage
+            enemyHealth -= extraDamage
+            viewModel?.totalDamageDealt += extraDamage
+            showDamage(on: enemy, damage: extraDamage)
+            print("Ручная атака: нанесено дополнительно \(extraDamage) урона")
+            checkBattleStatus()
+        }
+    }
+}
+import SwiftUI
+
+#Preview {
+    GameViewCTD(statVM: StatisticsViewModelCTD())
 }

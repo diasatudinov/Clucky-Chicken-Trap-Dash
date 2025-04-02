@@ -1,4 +1,5 @@
 import Combine
+import SwiftUI
 
 class GameViewModel: ObservableObject {
     @Published var heroHealth: Int = 100
@@ -17,4 +18,5 @@ class GameViewModel: ObservableObject {
     
     // Флаг завершения игры
     @Published var gameEnded: Bool = false
+    @Published var gameWin: Bool = false
 }
